@@ -49,16 +49,19 @@ cd ShotGunKeystroke
 open build/ShotgunKeystroke.app
 ```
 
-## First launch: grant Accessibility access
+## First launch: grant Input Monitoring access
 
-macOS requires permission before any app can observe global keystrokes.
-On first launch you'll get a prompt — or open **System Settings →
-Privacy & Security → Accessibility** and enable **ShotgunKeystroke**.
-The menu shows a ⚠️ item that takes you straight there until access is
-granted. Relaunch the app after granting.
+macOS requires the **Input Monitoring** permission before any app can
+observe global keystrokes (Accessibility is *not* enough — without
+Input Monitoring, macOS only delivers modifier-key events, so you'd
+hear shots on ⌘⌥⌃ but silence while typing). On first launch you'll
+get a prompt — or open **System Settings → Privacy & Security → Input
+Monitoring** and enable **ShotgunKeystroke**. The menu shows a ⚠️ item
+that takes you straight there until access is granted. Relaunch the
+app after granting.
 
 > Rebuilding from source re-signs the binary, so macOS treats it as a
-> new app — you may need to re-grant Accessibility after a rebuild
+> new app — you may need to re-grant Input Monitoring after a rebuild
 > (remove the old entry with the − button first).
 
 ## Privacy

@@ -1,5 +1,5 @@
 import AppKit
-import ApplicationServices
+import IOKit.hid
 import ServiceManagement
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
@@ -14,7 +14,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var repeatItem: NSMenuItem!
     private var modifiersItem: NSMenuItem!
     private var loginItem: NSMenuItem!
-    private var accessibilityItem: NSMenuItem!
+    private var permissionItem: NSMenuItem!
 
     private static let trackedModifiers: NSEvent.ModifierFlags = [
         .shift, .control, .option, .command, .capsLock,
@@ -23,7 +23,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         engine = SoundEngine(volume: Settings.volume)
         setupStatusItem()
-        requestAccessibilityIfNeeded()
+        requestInputMonitoringIfNeeded()
         installMonitors()
         refreshUI()
     }
@@ -100,13 +100,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         menu.addItem(.separator())
 
-        accessibilityItem = NSMenuItem(
-            title: "⚠️ Grant Accessibility Access…",
-            action: #selector(openAccessibilitySettings),
+        permissionItem = NSMenuItem(
+            title: "⚠️ Grant Input Monitoring Access…",
+            action: #selector(openInputMonitoringSettings),
             keyEquivalent: ""
         )
-        accessibilityItem.target = self
-        menu.addItem(accessibilityItem)
+        permissionItem.target = self
+        menu.addItem(permissionItem)
 
         let quitItem = NSMenuItem(
             title: "Quit ShotgunKeystroke",
@@ -137,7 +137,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         modifiersItem.state = Settings.fireOnModifiers ? .on : .off
         loginItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
 
-        accessibilityItem.isHidden = AXIsProcessTrusted()
+        permissionItem.isHidden = hasInputMonitoringAccess
     }
 
     // MARK: - Actions
@@ -193,22 +193,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         refreshUI()
     }
 
-    @objc private func openAccessibilitySettings() {
+    @objc private func openInputMonitoringSettings() {
         let url = URL(
             string:
-                "x-apple.systempreferences:com.apple.preference.security?Privacy_Accessibility"
+                "x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent"
         )!
         NSWorkspace.shared.open(url)
     }
 
     // MARK: - Key listening
 
-    private func requestAccessibilityIfNeeded() {
-        guard !AXIsProcessTrusted() else { return }
-        let options =
-            [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true]
-            as CFDictionary
-        AXIsProcessTrustedWithOptions(options)
+    /// Observing global keyDown events requires the Input Monitoring
+    /// permission (Accessibility is NOT enough on modern macOS —
+    /// without Input Monitoring only modifier-key flagsChanged events
+    /// are delivered).
+    private var hasInputMonitoringAccess: Bool {
+        IOHIDCheckAccess(kIOHIDRequestTypeListenEvent) == kIOHIDAccessTypeGranted
+    }
+
+    private func requestInputMonitoringIfNeeded() {
+        guard !hasInputMonitoringAccess else { return }
+        IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
     }
 
     private func installMonitors() {
