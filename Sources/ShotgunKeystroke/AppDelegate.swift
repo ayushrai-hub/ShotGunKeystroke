@@ -5,8 +5,9 @@ import ServiceManagement
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
     private var engine: SoundEngine!
-    private var monitors: [Any] = []
-    private var lastModifierFlags: NSEvent.ModifierFlags = []
+    private var eventTap: CFMachPort?
+    private var tapRetryTimer: Timer?
+    private var lastModifierFlags: CGEventFlags = []
 
     private var toggleItem: NSMenuItem!
     private var volumeLabelItem: NSMenuItem!
@@ -16,15 +17,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var loginItem: NSMenuItem!
     private var permissionItem: NSMenuItem!
 
-    private static let trackedModifiers: NSEvent.ModifierFlags = [
-        .shift, .control, .option, .command, .capsLock,
+    private static let trackedModifiers: CGEventFlags = [
+        .maskShift, .maskControl, .maskAlternate, .maskCommand, .maskAlphaShift,
     ]
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         engine = SoundEngine(volume: Settings.volume)
         setupStatusItem()
         requestInputMonitoringIfNeeded()
-        installMonitors()
+        startEventTap()
         refreshUI()
     }
 
@@ -137,7 +138,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         modifiersItem.state = Settings.fireOnModifiers ? .on : .off
         loginItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
 
-        permissionItem.isHidden = hasInputMonitoringAccess
+        permissionItem.isHidden = eventTap != nil
     }
 
     // MARK: - Actions
@@ -216,42 +217,77 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
     }
 
-    private func installMonitors() {
-        // Global monitor: keystrokes in every other app.
-        if let global = NSEvent.addGlobalMonitorForEvents(
-            matching: [.keyDown, .flagsChanged],
-            handler: { [weak self] event in
-                self?.handle(event)
+    /// Tries to install the tap; while permission is missing, retries
+    /// every 2s so shots start firing the moment the user flips the
+    /// Input Monitoring switch — no relaunch needed.
+    private func startEventTap() {
+        if installEventTap() {
+            tapRetryTimer?.invalidate()
+            tapRetryTimer = nil
+            refreshUI()
+        } else if tapRetryTimer == nil {
+            tapRetryTimer = Timer.scheduledTimer(
+                withTimeInterval: 2.0, repeats: true
+            ) { [weak self] _ in
+                self?.startEventTap()
             }
-        ) {
-            monitors.append(global)
-        }
-        // Local monitor: keystrokes while our own menu is focused.
-        if let local = NSEvent.addLocalMonitorForEvents(
-            matching: [.keyDown, .flagsChanged],
-            handler: { [weak self] event in
-                self?.handle(event)
-                return event
-            }
-        ) {
-            monitors.append(local)
         }
     }
 
+    private func installEventTap() -> Bool {
+        if eventTap != nil { return true }
+        let mask =
+            CGEventMask(1 << CGEventType.keyDown.rawValue)
+            | CGEventMask(1 << CGEventType.flagsChanged.rawValue)
+        let callback: CGEventTapCallBack = { _, type, event, refcon in
+            if let refcon {
+                Unmanaged<AppDelegate>.fromOpaque(refcon).takeUnretainedValue()
+                    .handleTap(type: type, event: event)
+            }
+            return Unmanaged.passUnretained(event)
+        }
+        // Listen-only session tap: sees key events system-wide, can't
+        // modify or block them. Creation fails (nil) until the user
+        // grants Input Monitoring.
+        guard
+            let tap = CGEvent.tapCreate(
+                tap: .cgSessionEventTap,
+                place: .headInsertEventTap,
+                options: .listenOnly,
+                eventsOfInterest: mask,
+                callback: callback,
+                userInfo: Unmanaged.passUnretained(self).toOpaque()
+            )
+        else {
+            return false
+        }
+        eventTap = tap
+        let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
+        CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
+        CGEvent.tapEnable(tap: tap, enable: true)
+        return true
+    }
+
     /// Reacts to key events. Deliberately never reads key codes or
-    /// characters — the only thing this app knows is "a key went down".
-    private func handle(_ event: NSEvent) {
-        switch event.type {
+    /// characters — only "a key went down", the auto-repeat flag, and
+    /// which modifier class changed.
+    private func handleTap(type: CGEventType, event: CGEvent) {
+        switch type {
         case .keyDown:
             guard Settings.isArmed else { return }
-            if event.isARepeat && !Settings.fireOnRepeat { return }
+            let isRepeat = event.getIntegerValueField(.keyboardEventAutorepeat) != 0
+            if isRepeat && !Settings.fireOnRepeat { return }
             engine.fire()
         case .flagsChanged:
-            let flags = event.modifierFlags.intersection(Self.trackedModifiers)
+            let flags = event.flags.intersection(Self.trackedModifiers)
             let pressed = flags.subtracting(lastModifierFlags)
             lastModifierFlags = flags
             if Settings.isArmed && Settings.fireOnModifiers && !pressed.isEmpty {
                 engine.fire()
+            }
+        case .tapDisabledByTimeout, .tapDisabledByUserInput:
+            if let tap = eventTap {
+                CGEvent.tapEnable(tap: tap, enable: true)
             }
         default:
             break
@@ -261,7 +297,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 extension AppDelegate: NSMenuDelegate {
     func menuWillOpen(_ menu: NSMenu) {
-        // Accessibility may have been granted since launch; keep the menu honest.
+        // The tap dies if the user revokes Input Monitoring while we
+        // run; detect that and go back to retrying.
+        if let tap = eventTap, !CFMachPortIsValid(tap) {
+            eventTap = nil
+            startEventTap()
+        }
         refreshUI()
     }
 }
