@@ -68,8 +68,10 @@ app after granting.
 > modifier keys (⌘⌥⌃) firing while letter keys stay silent. `build.sh`
 > handles this automatically: it clears the stale grant (`tccutil
 > reset`), so the next launch shows a fresh one-click prompt. To avoid
-> re-granting entirely, sign with a stable identity:
-> `CODESIGN_IDENTITY="Apple Development: you@… (TEAMID)" ./build.sh`
+> re-granting entirely, run `bash scripts/setup-signing.sh` once — it
+> creates a self-signed certificate that `build.sh` auto-detects, giving
+> every build the same stable signature. (Or use your own identity:
+> `CODESIGN_IDENTITY="Apple Development: you@… (TEAMID)" ./build.sh`)
 
 ## Privacy
 

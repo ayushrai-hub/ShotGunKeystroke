@@ -18,10 +18,18 @@ cp ".build/release/$APP_NAME" "$APP/Contents/MacOS/"
 cp Info.plist "$APP/Contents/"
 cp Resources/shotgun.wav "$APP/Contents/Resources/"
 
-# Use a stable signing identity if you have one (survives rebuilds so
-# macOS keeps your Input Monitoring grant):
-#   CODESIGN_IDENTITY="Apple Development: you@example.com (TEAMID)" ./build.sh
-IDENTITY="${CODESIGN_IDENTITY:--}"
+# Use a stable signing identity if available (survives rebuilds so
+# macOS keeps your Input Monitoring grant). Create one with:
+#   bash scripts/setup-signing.sh
+# or point at your own: CODESIGN_IDENTITY="Apple Development: …" ./build.sh
+IDENTITY="${CODESIGN_IDENTITY:-}"
+if [ -z "$IDENTITY" ]; then
+  if security find-identity -v -p codesigning 2>/dev/null | grep -q "ShotgunKeystroke Dev Signing"; then
+    IDENTITY="ShotgunKeystroke Dev Signing"
+  else
+    IDENTITY="-"
+  fi
+fi
 echo "▸ Signing (identity: $IDENTITY)…"
 codesign --force --sign "$IDENTITY" "$APP"
 
