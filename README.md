@@ -21,6 +21,9 @@ dependencies, ~1 MB, near-zero CPU when idle.
   the shotgun racks. All settings persist across restarts.
 - **🎯 Test Fire** — preview the blast without typing a single
   character. It's called range practice. Look it up.
+- **Custom sounds** — "Choose Sound File…" in the menu swaps the
+  shotgun for any WAV/MP3/M4A/AIFF you like. Ducks, dial-up, your own
+  voice — we don't judge. One click resets to the shotgun.
 
 ## Install
 
@@ -87,8 +90,9 @@ one file.
 python3 scripts/generate_sound.py && ./build.sh
 ```
 
-Want a different sound entirely? Replace `Resources/shotgun.wav` with
-any WAV file and rebuild.
+Want a different sound entirely? Use **Choose Sound File…** in the
+menu (no rebuild needed), or replace `Resources/shotgun.wav` and
+rebuild to change the built-in default.
 
 ## Project layout
 

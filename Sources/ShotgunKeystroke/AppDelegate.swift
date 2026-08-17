@@ -1,6 +1,7 @@
 import AppKit
 import IOKit.hid
 import ServiceManagement
+import UniformTypeIdentifiers
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
@@ -12,6 +13,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var toggleItem: NSMenuItem!
     private var volumeLabelItem: NSMenuItem!
     private var volumeSlider: NSSlider!
+    private var chooseSoundItem: NSMenuItem!
+    private var resetSoundItem: NSMenuItem!
     private var repeatItem: NSMenuItem!
     private var modifiersItem: NSMenuItem!
     private var loginItem: NSMenuItem!
@@ -75,6 +78,24 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         menu.addItem(.separator())
 
+        chooseSoundItem = NSMenuItem(
+            title: "Choose Sound File…",
+            action: #selector(chooseSound),
+            keyEquivalent: ""
+        )
+        chooseSoundItem.target = self
+        menu.addItem(chooseSoundItem)
+
+        resetSoundItem = NSMenuItem(
+            title: "Reset to Shotgun Blast",
+            action: #selector(resetSound),
+            keyEquivalent: ""
+        )
+        resetSoundItem.target = self
+        menu.addItem(resetSoundItem)
+
+        menu.addItem(.separator())
+
         repeatItem = NSMenuItem(
             title: "Fire on Key Repeat",
             action: #selector(toggleRepeat),
@@ -134,6 +155,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         volumeLabelItem.title = "Volume: \(Int((Settings.volume * 100).rounded()))%"
         volumeSlider.doubleValue = Double(Settings.volume * 100)
 
+        if let path = Settings.customSoundPath {
+            resetSoundItem.isHidden = false
+            resetSoundItem.title =
+                "Reset to Shotgun Blast (now: \(URL(fileURLWithPath: path).lastPathComponent))"
+        } else {
+            resetSoundItem.isHidden = true
+        }
+
         repeatItem.state = Settings.fireOnRepeat ? .on : .off
         modifiersItem.state = Settings.fireOnModifiers ? .on : .off
         loginItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
@@ -163,6 +192,33 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         if NSApp.currentEvent?.type == .leftMouseUp {
             engine.fire()
         }
+    }
+
+    @objc private func chooseSound() {
+        let panel = NSOpenPanel()
+        panel.message = "Pick any audio file (WAV, MP3, M4A, AIFF…) to fire on each keystroke"
+        panel.allowedContentTypes = [.audio]
+        panel.allowsMultipleSelection = false
+        panel.canChooseDirectories = false
+        NSApp.activate(ignoringOtherApps: true)
+        guard panel.runModal() == .OK, let url = panel.url else { return }
+        if engine.load(url: url) {
+            Settings.customSoundPath = url.path
+            engine.fire()
+        } else {
+            let alert = NSAlert()
+            alert.messageText = "Couldn't load that file"
+            alert.informativeText = "It doesn't seem to be a decodable audio file. The current sound is unchanged."
+            alert.runModal()
+        }
+        refreshUI()
+    }
+
+    @objc private func resetSound() {
+        Settings.customSoundPath = nil
+        engine.loadCurrentSound()
+        engine.fire()
+        refreshUI()
     }
 
     @objc private func toggleRepeat() {

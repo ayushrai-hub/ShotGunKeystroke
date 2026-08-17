@@ -28,6 +28,12 @@ enum Settings {
         set { defaults.set(newValue, forKey: "fireOnModifiers") }
     }
 
+    /// Path to a user-chosen sound file; nil means the built-in blast.
+    static var customSoundPath: String? {
+        get { defaults.string(forKey: "customSoundPath") }
+        set { defaults.set(newValue, forKey: "customSoundPath") }
+    }
+
     private static func clamp(_ value: Float) -> Float {
         min(max(value, 0.1), 1.0)
     }
