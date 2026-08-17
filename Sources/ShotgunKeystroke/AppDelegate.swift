@@ -7,6 +7,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: NSStatusItem!
     private var engine: SoundEngine!
     private var eventTap: CFMachPort?
+    private var runLoopSource: CFRunLoopSource?
     private var tapRetryTimer: Timer?
     private var lastModifierFlags: CGEventFlags = []
 
@@ -167,7 +168,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         modifiersItem.state = Settings.fireOnModifiers ? .on : .off
         loginItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
 
-        permissionItem.isHidden = eventTap != nil
+        permissionItem.isHidden = hasInputMonitoringAccess
     }
 
     // MARK: - Actions
@@ -273,15 +274,31 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         IOHIDRequestAccess(kIOHIDRequestTypeListenEvent)
     }
 
-    /// Tries to install the tap; while permission is missing, retries
-    /// every 2s so shots start firing the moment the user flips the
-    /// Input Monitoring switch — no relaunch needed.
+    /// Keeps the tap in sync with the Input Monitoring permission.
+    /// Without the permission, macOS still delivers modifier events to
+    /// a tap but silently withholds normal keys — a confusing
+    /// half-working state — so we only run a tap while access is
+    /// genuinely granted, and retry every 2s otherwise so shots start
+    /// the moment the user grants it. No relaunch needed.
     private func startEventTap() {
-        if installEventTap() {
-            tapRetryTimer?.invalidate()
-            tapRetryTimer = nil
+        if hasInputMonitoringAccess {
+            if let tap = eventTap, !CFMachPortIsValid(tap) {
+                teardownEventTap()
+            }
+            if eventTap == nil {
+                installEventTap()
+            }
+            if eventTap != nil {
+                tapRetryTimer?.invalidate()
+                tapRetryTimer = nil
+                refreshUI()
+                return
+            }
+        } else if eventTap != nil {
+            teardownEventTap()
             refreshUI()
-        } else if tapRetryTimer == nil {
+        }
+        if tapRetryTimer == nil {
             tapRetryTimer = Timer.scheduledTimer(
                 withTimeInterval: 2.0, repeats: true
             ) { [weak self] _ in
@@ -290,6 +307,19 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    private func teardownEventTap() {
+        if let source = runLoopSource {
+            CFRunLoopRemoveSource(CFRunLoopGetMain(), source, .commonModes)
+            runLoopSource = nil
+        }
+        if let tap = eventTap {
+            CGEvent.tapEnable(tap: tap, enable: false)
+            CFMachPortInvalidate(tap)
+            eventTap = nil
+        }
+    }
+
+    @discardableResult
     private func installEventTap() -> Bool {
         if eventTap != nil { return true }
         let mask =
@@ -318,8 +348,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             return false
         }
         eventTap = tap
-        let source = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
-        CFRunLoopAddSource(CFRunLoopGetMain(), source, .commonModes)
+        runLoopSource = CFMachPortCreateRunLoopSource(kCFAllocatorDefault, tap, 0)
+        CFRunLoopAddSource(CFRunLoopGetMain(), runLoopSource, .commonModes)
         CGEvent.tapEnable(tap: tap, enable: true)
         return true
     }
@@ -353,12 +383,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
 extension AppDelegate: NSMenuDelegate {
     func menuWillOpen(_ menu: NSMenu) {
-        // The tap dies if the user revokes Input Monitoring while we
-        // run; detect that and go back to retrying.
-        if let tap = eventTap, !CFMachPortIsValid(tap) {
-            eventTap = nil
-            startEventTap()
-        }
+        // Permission may have been granted or revoked since the last
+        // check; resync the tap and the ⚠️ item.
+        startEventTap()
         refreshUI()
     }
 }

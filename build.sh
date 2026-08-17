@@ -18,8 +18,21 @@ cp ".build/release/$APP_NAME" "$APP/Contents/MacOS/"
 cp Info.plist "$APP/Contents/"
 cp Resources/shotgun.wav "$APP/Contents/Resources/"
 
-echo "▸ Signing (ad-hoc)…"
-codesign --force --sign - "$APP"
+# Use a stable signing identity if you have one (survives rebuilds so
+# macOS keeps your Input Monitoring grant):
+#   CODESIGN_IDENTITY="Apple Development: you@example.com (TEAMID)" ./build.sh
+IDENTITY="${CODESIGN_IDENTITY:--}"
+echo "▸ Signing (identity: $IDENTITY)…"
+codesign --force --sign "$IDENTITY" "$APP"
+
+if [ "$IDENTITY" = "-" ]; then
+  # Ad-hoc signatures change on every build, which strands any previous
+  # Input Monitoring grant (symptom: modifier keys fire, letters don't).
+  # Clear the stale TCC entry so the next launch shows a fresh one-click
+  # permission prompt instead of silently half-working.
+  echo "▸ Clearing stale Input Monitoring grant (ad-hoc signature changed)…"
+  tccutil reset ListenEvent dev.piyush.shotgunkeystroke || true
+fi
 
 echo "✅ Built $APP"
 echo "   Run it with: open $APP"

@@ -63,9 +63,13 @@ Monitoring** and enable **ShotgunKeystroke**. The menu shows a ⚠️ item
 that takes you straight there until access is granted. Relaunch the
 app after granting.
 
-> Rebuilding from source re-signs the binary, so macOS treats it as a
-> new app — you may need to re-grant Input Monitoring after a rebuild
-> (remove the old entry with the − button first).
+> **Rebuilding from source?** Ad-hoc signatures change on every build,
+> which strands the previous permission grant — the telltale symptom is
+> modifier keys (⌘⌥⌃) firing while letter keys stay silent. `build.sh`
+> handles this automatically: it clears the stale grant (`tccutil
+> reset`), so the next launch shows a fresh one-click prompt. To avoid
+> re-granting entirely, sign with a stable identity:
+> `CODESIGN_IDENTITY="Apple Development: you@… (TEAMID)" ./build.sh`
 
 ## Privacy
 
