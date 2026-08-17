@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>ShotgunKeystroke — Shotgun Sound on Every Keystroke for Mac</title>
+  <meta name="description" content="Free open-source macOS menu bar app that fires a shotgun sound on every keystroke. Keyboard typing sound effects for Mac with volume control, custom sounds, and launch at login. A chaotic alternative to Klack, Tickeys, and Mechvibes.">
+  <meta name="keywords" content="keyboard sounds mac, typing sounds macos, keystroke sound effects, shotgun keyboard sound, mechanical keyboard sounds mac, klack alternative, tickeys alternative, mechvibes alternative, mac menu bar app, free open source mac app">
+  <link rel="canonical" href="https://piyushsomething.github.io/ShotGunKeystroke/">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔫</text></svg>">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ShotgunKeystroke — Shotgun Sound on Every Keystroke for Mac">
+  <meta property="og:description" content="Free open-source macOS menu bar app that fires a shotgun on every keystroke. Volume control, custom sounds, launch at login. ~1 MB, native Swift, never reads what you type.">
+  <meta property="og:url" content="https://piyushsomething.github.io/ShotGunKeystroke/">
+  <meta property="og:site_name" content="ShotgunKeystroke">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="ShotgunKeystroke — Shotgun Sound on Every Keystroke for Mac">
+  <meta name="twitter:description" content="Free open-source macOS menu bar app that fires a shotgun on every keystroke. Volume control, custom sounds, launch at login.">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "ShotgunKeystroke",
+    "operatingSystem": "macOS 13+",
+    "applicationCategory": "UtilitiesApplication",
+    "description": "macOS menu bar app that fires a shotgun sound on every keystroke, with volume control, custom sounds, and launch at login.",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "downloadUrl": "https://github.com/Piyushsomething/ShotGunKeystroke/releases/latest",
+    "license": "https://github.com/Piyushsomething/ShotGunKeystroke/blob/main/LICENSE",
+    "url": "https://github.com/Piyushsomething/ShotGunKeystroke"
+  }
+  </script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg: #f6f4ef; --fg: #1c1a17; --muted: #6b675f;
+      --accent: #b3402a; --card: #ffffff; --border: #e2ded4;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #16130f; --fg: #ece7dd; --muted: #9a938a;
+        --accent: #e2694f; --card: #211d18; --border: #332e26;
+      }
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg); color: var(--fg);
+      line-height: 1.6; padding: 4rem 1.5rem;
+    }
+    main { max-width: 640px; margin: 0 auto; }
+    .emoji { font-size: 4rem; }
+    h1 { font-size: 2.4rem; letter-spacing: -0.02em; margin: 0.5rem 0; }
+    .tagline { font-size: 1.25rem; color: var(--muted); margin-bottom: 2rem; }
+    .buttons { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 3rem; }
+    .btn {
+      display: inline-block; padding: 0.7rem 1.4rem; border-radius: 10px;
+      text-decoration: none; font-weight: 600; font-size: 1rem;
+    }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-secondary { border: 1.5px solid var(--border); color: var(--fg); }
+    h2 { font-size: 1.15rem; margin: 2rem 0 0.75rem; }
+    ul.features { list-style: none; }
+    ul.features li {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; padding: 0.7rem 1rem; margin-bottom: 0.5rem;
+    }
+    ul.features li strong { display: block; }
+    ul.features li span { color: var(--muted); font-size: 0.95rem; }
+    .privacy {
+      border-left: 3px solid var(--accent); padding: 0.25rem 1rem;
+      color: var(--muted); margin: 2rem 0;
+    }
+    footer { margin-top: 3rem; color: var(--muted); font-size: 0.9rem; }
+    footer a { color: var(--accent); }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="emoji" aria-hidden="true">🔫</div>
+    <h1>ShotgunKeystroke</h1>
+    <p class="tagline">Every keystroke on your Mac fires a shotgun. Keyboard typing
+    sound effects with real recoil — a free, open-source menu bar app.</p>
+
+    <div class="buttons">
+      <a class="btn btn-primary" href="https://github.com/Piyushsomething/ShotGunKeystroke/releases/latest">Download for macOS</a>
+      <a class="btn btn-secondary" href="https://github.com/Piyushsomething/ShotGunKeystroke">View on GitHub</a>
+    </div>
+
+    <h2>Features</h2>
+    <ul class="features">
+      <li><strong>🔫 / 🕊️ One-click ceasefire</strong><span>Menu bar toggle — the icon dims when the guns are down.</span></li>
+      <li><strong>Volume 10–100%</strong><span>From polite office skirmish to "the neighbors are calling someone."</span></li>
+      <li><strong>Custom sounds</strong><span>Swap the shotgun for any WAV/MP3/M4A. Ducks, dial-up, your call.</span></li>
+      <li><strong>Modifier keys &amp; hold-to-repeat</strong><span>Optional. ⌘S has never felt this dramatic.</span></li>
+      <li><strong>Launch at login</strong><span>Your Mac boots, the shotgun racks. Settings persist.</span></li>
+      <li><strong>Tiny &amp; native</strong><span>~1 MB Swift app. No Electron, no dependencies, near-zero idle CPU.</span></li>
+    </ul>
+
+    <p class="privacy"><strong>Privacy:</strong> ShotgunKeystroke never reads which
+    key you pressed — only that a key went down. No key codes, no logging,
+    no network access. The source is one small file; audit it yourself.</p>
+
+    <footer>
+      MIT licensed. Like Klack, Tickeys, or Mechvibes — but louder.
+      <a href="https://github.com/Piyushsomething/ShotGunKeystroke">Source on GitHub</a>
+    </footer>
+  </main>
+</body>
+</html>

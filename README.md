@@ -1,9 +1,16 @@
 # 🔫 ShotgunKeystroke
 
-Every keystroke on your Mac fires a shotgun. That's it. That's the app.
+**Every keystroke on your Mac fires a shotgun.** That's it. That's the app.
 
-A tiny native macOS menu bar app written in Swift — no Electron, no
-dependencies, ~1 MB, near-zero CPU when idle.
+A free, open-source **keyboard sound effects app for macOS** — typing
+sounds for your Mac, but instead of mechanical keyboard clicks you get
+a 12-gauge. Think Klack, Tickeys, or Mechvibes, with more caliber.
+
+Tiny native menu bar app written in Swift — no Electron, no
+dependencies, ~1 MB, near-zero CPU when idle, and it never reads what
+you type.
+
+![macOS 13+](https://img.shields.io/badge/macOS-13%2B-blue) ![Swift](https://img.shields.io/badge/Swift-5.9-orange) ![License: MIT](https://img.shields.io/badge/License-MIT-green) ![Size](https://img.shields.io/badge/App%20Size-~1MB-lightgrey)
 
 ## Features
 
