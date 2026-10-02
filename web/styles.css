@@ -390,7 +390,10 @@ button.menu__item:hover, button.menu__item:focus-visible {
   font-size: 14px; color: var(--muted);
 }
 .footer p { margin: 0; }
-.footer a + a { margin-left: 18px; }
+.footer__credits { display: grid; gap: 8px; max-width: 46em; }
+.footer__ayush { color: var(--ink); }
+.footer__ayush a { color: var(--accent-ink); }
+.footer__links a + a { margin-left: 18px; }
 
 /* Small screens */
 
