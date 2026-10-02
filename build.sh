@@ -30,8 +30,10 @@ if [ -z "$IDENTITY" ]; then
     IDENTITY="-"
   fi
 fi
-echo "▸ Signing (identity: $IDENTITY)…"
-codesign --force --sign "$IDENTITY" "$APP"
+echo "▸ Signing (identity: $IDENTITY, hardened runtime)…"
+# Hardened runtime blocks DYLD_INSERT_LIBRARIES-style code injection, so
+# other local code can't piggyback on this app's Input Monitoring grant.
+codesign --force --options runtime --sign "$IDENTITY" "$APP"
 
 if [ "$IDENTITY" = "-" ]; then
   # Ad-hoc signatures change on every build, which strands any previous
