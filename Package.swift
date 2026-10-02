@@ -10,6 +10,11 @@ let package = Package(
         .executableTarget(
             name: "ShotgunKeystroke",
             path: "Sources/ShotgunKeystroke"
-        )
+        ),
+        .testTarget(
+            name: "ShotgunKeystrokeTests",
+            dependencies: ["ShotgunKeystroke"],
+            path: "Tests/ShotgunKeystrokeTests"
+        ),
     ]
 )
