@@ -1,5 +1,39 @@
+# Swift Package Manager / build output
 .build/
 build/
-.DS_Store
-*.xcodeproj
 .swiftpm/
+
+# Xcode (the project builds with SwiftPM; no Xcode project is committed)
+*.xcodeproj
+*.xcworkspace
+xcuserdata/
+DerivedData/
+
+# Release artifacts
+*.app.zip
+*.dmg
+
+# Python (scripts/generate_sound.py)
+__pycache__/
+*.py[cod]
+
+# Code-signing material — never commit (see scripts/setup-signing.sh)
+*.p12
+*.pfx
+*.pem
+*.key
+*.cer
+*.certSigningRequest
+*.mobileprovision
+*.provisionprofile
+
+# Local environment files (the project needs none, but keep them out)
+.env
+.env.*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
