@@ -1,0 +1,5 @@
+# Only the static site is deployed; keep the app source, build output,
+# and signing scripts out of the upload.
+/*
+!/web
+!/vercel.json

@@ -27,6 +27,9 @@ __pycache__/
 *.mobileprovision
 *.provisionprofile
 
+# Vercel CLI project link
+.vercel/
+
 # Local environment files (the project needs none, but keep them out)
 .env
 .env.*

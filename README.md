@@ -173,6 +173,21 @@ Releases are published manually as `ShotgunKeystroke.app.zip` assets on [GitHub 
 
 The landing page in [`docs/index.html`](docs/index.html) is served by GitHub Pages at [piyushsomething.github.io/ShotGunKeystroke](https://piyushsomething.github.io/ShotGunKeystroke/).
 
+### Website (Vercel)
+
+[`web/`](web/) is a static site (plain HTML, CSS, and JavaScript; no build step) that explains the app and lets visitors try the real sound in the browser. [`vercel.json`](vercel.json) serves `web/` as the output directory with security headers, and [`.vercelignore`](.vercelignore) limits uploads to the site files.
+
+```bash
+# Preview locally
+python3 -m http.server 4173 --directory web    # then open http://localhost:4173
+
+# Deploy (Vercel CLI, after `vercel link`)
+vercel deploy          # preview
+vercel deploy --prod   # production
+```
+
+`web/shotgun.wav` is a copy of `Resources/shotgun.wav`; `scripts/check.sh` fails if they drift apart.
+
 ## Project Structure
 
 ```
@@ -191,6 +206,8 @@ scripts/
   check.sh                       All quality gates in one command
 build.sh                         Builds + signs build/ShotgunKeystroke.app
 docs/index.html                  GitHub Pages landing page
+web/                             Static website deployed to Vercel (index.html, styles.css, app.js)
+vercel.json                      Vercel config: serve web/, security headers, caching
 ```
 
 ## Usage

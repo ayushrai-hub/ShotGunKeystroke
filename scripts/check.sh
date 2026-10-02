@@ -40,4 +40,7 @@ cp scripts/generate_sound.py "$TMP/scripts/"
 python3 "$TMP/scripts/generate_sound.py" >/dev/null
 cmp "$TMP/Resources/shotgun.wav" Resources/shotgun.wav
 
+echo "▸ Verifying the website plays the same sound as the app…"
+cmp web/shotgun.wav Resources/shotgun.wav
+
 echo "✅ All checks passed"

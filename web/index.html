@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ShotgunKeystroke — an open source keyboard sound app for Mac</title>
+  <meta name="description" content="ShotgunKeystroke is a free, open source macOS menu bar app that plays a shotgun blast every time you press a key. Volume control, custom sounds, and it never reads what you type.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="ShotgunKeystroke — Open Source Keyboard sounds for Mac">
+  <meta property="og:description" content="Press a key, hear a 12-gauge. A free, open source menu bar app for macOS that never reads what you type.">
+  <meta name="twitter:card" content="summary">
+  <meta name="theme-color" content="#f3f0e8">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="masthead">
+    <div class="wrap masthead__row">
+      <a class="wordmark" href="/" aria-label="ShotgunKeystroke home">
+        <svg class="wordmark__mark" viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="11" fill="none" stroke="currentColor" stroke-width="2.5"/><circle cx="16" cy="16" r="3.5" fill="currentColor"/><path d="M16 1v7M16 24v7M1 16h7M24 16h7" stroke="currentColor" stroke-width="2.5"/></svg>
+        ShotgunKeystroke
+      </a>
+      <nav class="nav" aria-label="Primary">
+        <a href="#how">How it works</a>
+        <a href="#privacy">Privacy</a>
+        <a href="#install">Install</a>
+        <a href="https://github.com/Piyushsomething/ShotGunKeystroke" rel="noopener">GitHub&nbsp;↗</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero wrap">
+      <div class="hero__copy">
+        <p class="kicker">Open Source Keyboard · for macOS 13 and later</p>
+        <h1>Every key you press fires a&nbsp;shotgun.</h1>
+        <p class="lede">
+          ShotgunKeystroke is a free menu bar app for the Mac. Press a key, hear a
+          12-gauge. Think Klack or Mechvibes with the safety off. The whole thing is
+          about 500 lines of Swift, so you can read it before you trust it.
+        </p>
+        <div class="actions">
+          <a class="button button--primary" href="https://github.com/Piyushsomething/ShotGunKeystroke/releases/latest" rel="noopener">Download for macOS</a>
+          <a class="button" href="https://github.com/Piyushsomething/ShotGunKeystroke" rel="noopener">Read the source</a>
+        </div>
+        <ul class="facts" aria-label="At a glance">
+          <li>Free</li>
+          <li>MIT license</li>
+          <li>~200 KB</li>
+          <li>No network access</li>
+        </ul>
+      </div>
+
+      <div class="demo" id="demo" aria-labelledby="demo-title">
+        <p class="demo__label" id="demo-title"><span>Try it</span> This is the real sound and the real menu.</p>
+
+        <div class="screen">
+          <div class="menubar" aria-hidden="true">
+            <span class="menubar__apple"></span>
+            <span class="menubar__spacer"></span>
+            <span class="menubar__icon" id="menubar-icon">🔫</span>
+            <span class="menubar__clock">9:41</span>
+          </div>
+
+          <div class="menu" role="group" aria-label="ShotgunKeystroke menu">
+            <button class="menu__item" type="button" id="toggle-armed" aria-pressed="true">
+              <span class="menu__check" aria-hidden="true">✓</span>
+              <span id="toggle-armed-label">🕊️ Ceasefire</span>
+            </button>
+            <button class="menu__item" type="button" id="test-fire">
+              <span class="menu__check" aria-hidden="true"></span>
+              🎯 Test Fire
+            </button>
+            <hr class="menu__sep">
+            <label class="menu__item menu__item--static" for="volume">
+              <span class="menu__check" aria-hidden="true"></span>
+              <span>Volume: <output id="volume-value" for="volume">60%</output></span>
+            </label>
+            <div class="menu__slider">
+              <input type="range" id="volume" min="10" max="100" value="60" step="1">
+            </div>
+            <hr class="menu__sep">
+            <button class="menu__item" type="button" id="toggle-repeat" aria-pressed="false">
+              <span class="menu__check" aria-hidden="true"></span>
+              Fire on Key Repeat
+            </button>
+            <button class="menu__item" type="button" id="toggle-modifiers" aria-pressed="false">
+              <span class="menu__check" aria-hidden="true"></span>
+              Fire on Modifier Keys (⇧⌘⌥⌃)
+            </button>
+          </div>
+        </div>
+
+        <label class="demo__field-label" for="range">Type here</label>
+        <textarea id="range" class="demo__field" rows="3" spellcheck="false" placeholder="Go on. Type something." autocomplete="off"></textarea>
+        <div class="demo__meta">
+          <span><strong id="rounds">0</strong> <span id="rounds-word">rounds</span> fired</span>
+          <span class="demo__note">Only this box is listened to, only in this tab.</span>
+        </div>
+        <p class="demo__error" id="audio-error" hidden>Your browser couldn't load the sound. The app itself doesn't depend on any of this.</p>
+      </div>
+    </section>
+
+    <section class="section wrap" id="what">
+      <header class="section__head">
+        <span class="section__num">01</span>
+        <h2>It plays a sound when you type. That's the product.</h2>
+      </header>
+      <div class="section__body prose">
+        <p>
+          Most keyboard sound apps try to make a laptop feel like a mechanical
+          keyboard: soft thocks, clicky blue switches. ShotgunKeystroke goes the other
+          way. Every key-down anywhere on your Mac, whether you're in your editor, in
+          Slack, or in the Spotlight bar, plays a short, loud shotgun blast.
+        </p>
+        <p>
+          It lives in the menu bar, not the Dock. There's an on/off switch, a volume
+          slider, and a menu item that swaps the shotgun for any audio file you like.
+          Holding a key down doesn't turn into a machine gun unless you ask it to.
+          Settings survive restarts, and it can launch at login.
+        </p>
+        <p>
+          It's native Swift with no third-party packages. The built app is about
+          200&nbsp;KB and sits at near-zero CPU while you're not typing.
+        </p>
+      </div>
+
+      <dl class="spec">
+        <div><dt>Platform</dt><dd>macOS 13 Ventura or later</dd></div>
+        <div><dt>Size</dt><dd>About 200 KB</dd></div>
+        <div><dt>Written in</dt><dd>Swift, Apple frameworks only</dd></div>
+        <div><dt>Permission</dt><dd>Input Monitoring</dd></div>
+        <div><dt>Network</dt><dd>None</dd></div>
+        <div><dt>License</dt><dd>MIT</dd></div>
+      </dl>
+    </section>
+
+    <section class="section wrap" id="how">
+      <header class="section__head">
+        <span class="section__num">02</span>
+        <h2>How it works</h2>
+      </header>
+
+      <ol class="steps">
+        <li>
+          <h3>It asks for one permission.</h3>
+          <p>
+            macOS won't let any app see keystrokes outside its own windows without
+            <strong>Input Monitoring</strong>. Accessibility isn't enough: without
+            Input Monitoring, macOS only passes along modifier keys. The app asks on
+            first launch and shows a ⚠️ item in its menu until you say yes. It checks
+            again every couple of seconds, so there's no relaunch after you grant it.
+          </p>
+        </li>
+        <li>
+          <h3>It listens, and only listens.</h3>
+          <p>
+            Keyboard events are picked up with a <em>listen-only</em> event tap
+            (<code>CGEventTap</code> with <code>.listenOnly</code>). A listen-only tap
+            can watch events go by. It can't change them, block them, or type
+            anything on your behalf.
+          </p>
+        </li>
+        <li>
+          <h3>It doesn't look at the key.</h3>
+          <p>This is the entire decision, straight from <code>AppDelegate.swift</code>:</p>
+          <pre class="code"><code><span class="c-k">case</span> .keyDown:
+    <span class="c-k">guard</span> Settings.isArmed <span class="c-k">else</span> { <span class="c-k">return</span> }
+    <span class="c-k">let</span> isRepeat = event.getIntegerValueField(.keyboardEventAutorepeat) != <span class="c-n">0</span>
+    <span class="c-k">if</span> isRepeat &amp;&amp; !Settings.fireOnRepeat { <span class="c-k">return</span> }
+    engine.fire()</code></pre>
+          <p>
+            No key code, no character. There's nothing to log because it never asks
+            which key it was.
+          </p>
+        </li>
+        <li>
+          <h3>Eight barrels.</h3>
+          <p>
+            The sound engine loads eight copies of the blast up front and rotates
+            through them. Type fast and the shots overlap instead of each one cutting
+            off the last.
+          </p>
+        </li>
+      </ol>
+
+      <figure class="wave">
+        <div class="wave__head">
+          <h3>The sound is made from scratch.</h3>
+          <p>
+            The blast isn't from a sound library. A 70-line Python script builds it
+            from three layers: a white-noise <em>crack</em> that's gone in a few
+            hundredths of a second, a low-passed <em>boom</em> that fades over a few
+            tenths, and a sine <em>thump</em> that drops from 95&nbsp;Hz to
+            55&nbsp;Hz. The random seed is fixed, so anyone can regenerate the exact
+            same file.
+          </p>
+        </div>
+        <button class="wave__canvas" type="button" id="wave-play" aria-label="Play the shotgun sound">
+          <canvas id="wave" height="160"></canvas>
+        </button>
+        <figcaption>
+          <span>shotgun.wav, drawn in your browser. Click it to fire.</span>
+          <span class="wave__axis"><span>0 ms</span><span>350</span><span>700 ms</span></span>
+        </figcaption>
+      </figure>
+    </section>
+
+    <section class="section wrap" id="privacy">
+      <header class="section__head">
+        <span class="section__num">03</span>
+        <h2>It hears <em>that</em> you typed. Not <em>what</em>.</h2>
+      </header>
+
+      <div class="ledger">
+        <div class="ledger__col">
+          <h3>What it reads</h3>
+          <ul>
+            <li>That a key went down</li>
+            <li>Whether it was an auto-repeat from a key being held</li>
+            <li>Which modifier keys changed, for the optional modifier sounds</li>
+          </ul>
+        </div>
+        <div class="ledger__col ledger__col--never">
+          <h3>What it never touches</h3>
+          <ul>
+            <li>Key codes or characters</li>
+            <li>The network. There's no networking code in it at all.</li>
+            <li>Your disk, apart from its own settings</li>
+            <li>Anyone else's input. The tap can't modify or block events.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="section__body prose">
+        <p>
+          The app is signed with Apple's hardened runtime, so other programs on your
+          Mac can't inject code into it and borrow its Input Monitoring permission.
+        </p>
+        <p>
+          You don't have to take this page's word for any of it.
+          <a href="https://github.com/Piyushsomething/ShotGunKeystroke/blob/main/Sources/ShotgunKeystroke/AppDelegate.swift" rel="noopener">AppDelegate.swift</a>
+          is under 400 lines, and the security model is written up in
+          <a href="https://github.com/ayushrai-hub/ShotGunKeystroke/blob/main/SECURITY.md" rel="noopener">SECURITY.md</a>.
+        </p>
+      </div>
+    </section>
+
+    <section class="section wrap" id="install">
+      <header class="section__head">
+        <span class="section__num">04</span>
+        <h2>Install</h2>
+      </header>
+
+      <div class="install">
+        <div class="install__col">
+          <h3>Download</h3>
+          <ol class="numbered">
+            <li>Get <code>ShotgunKeystroke.app.zip</code> from <a href="https://github.com/Piyushsomething/ShotGunKeystroke/releases/latest" rel="noopener">GitHub Releases</a>.</li>
+            <li>Unzip it and drag the app into <strong>Applications</strong>.</li>
+            <li>
+              The release isn't notarized, so macOS blocks the first launch.
+              Right-click the app, choose <strong>Open</strong>, then
+              <strong>Open</strong> again. Or clear the quarantine flag:
+              <div class="cmd">
+                <pre><code>xattr -dr com.apple.quarantine /Applications/ShotgunKeystroke.app</code></pre>
+                <button class="copy" type="button">Copy</button>
+              </div>
+            </li>
+            <li>Allow it under <strong>System Settings → Privacy &amp; Security → Input Monitoring</strong>.</li>
+          </ol>
+        </div>
+
+        <div class="install__col">
+          <h3>Build it yourself</h3>
+          <p>
+            You'll need macOS 13 or later and either Xcode or the Command Line Tools
+            (<code>xcode-select --install</code>). Building it yourself means you're
+            running exactly the code you just read.
+          </p>
+          <div class="cmd">
+            <pre><code>git clone https://github.com/Piyushsomething/ShotGunKeystroke.git
+cd ShotGunKeystroke
+./build.sh
+open build/ShotgunKeystroke.app</code></pre>
+            <button class="copy" type="button">Copy</button>
+          </div>
+          <p class="small">
+            Rebuilding resets the permission, because each build gets a new ad-hoc
+            signature. Run <code>bash scripts/setup-signing.sh</code> once to keep the
+            same signature between builds.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section wrap" id="faq">
+      <header class="section__head">
+        <span class="section__num">05</span>
+        <h2>Questions people actually ask</h2>
+      </header>
+
+      <div class="faq">
+        <details>
+          <summary>Isn't this basically a keylogger?</summary>
+          <p>It needs the same permission a keylogger would, which is exactly why the key-handling code is five lines long and public. It never reads which key you pressed, and it has no way to send anything anywhere.</p>
+        </details>
+        <details>
+          <summary>Can I use a different sound?</summary>
+          <p>Yes. <strong>Choose Sound File…</strong> in the menu takes any WAV, MP3, M4A or AIFF. If a file can't be decoded, the app keeps the current sound and tells you. <strong>Reset to Shotgun Blast</strong> brings the shotgun back.</p>
+        </details>
+        <details>
+          <summary>What happens when I hold down backspace?</summary>
+          <p>One shot. Auto-repeat is ignored by default. Turn on <strong>Fire on Key Repeat</strong> if you want the machine gun.</p>
+        </details>
+        <details>
+          <summary>Does it work with an external keyboard?</summary>
+          <p>Yes. It listens to keyboard events at the system level, so it doesn't matter which keyboard sent them.</p>
+        </details>
+        <details>
+          <summary>⌘ and ⇧ make noise but letters are silent. Why?</summary>
+          <p>The Input Monitoring grant belongs to an older copy of the app, which usually happens after a rebuild. Remove ShotgunKeystroke from the Input Monitoring list and add it again, or rebuild with <code>./build.sh</code>, which clears the stale grant for you.</p>
+        </details>
+        <details>
+          <summary>Windows? Linux?</summary>
+          <p>No. It's built on macOS APIs (AppKit and CoreGraphics event taps) and only runs on a Mac.</p>
+        </details>
+        <details>
+          <summary>How do I make it stop?</summary>
+          <p>Click the 🔫 in the menu bar and choose <strong>Ceasefire</strong>. The icon turns into a dimmed 🕊️. <strong>Quit</strong> is at the bottom of the same menu.</p>
+        </details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer__row">
+      <p>
+        <strong>ShotgunKeystroke</strong>, an open source keyboard app for macOS.
+        Created by <a href="https://github.com/Piyushsomething" rel="noopener">@Piyushsomething</a>.
+        MIT licensed.
+      </p>
+      <p>
+        <a href="https://github.com/Piyushsomething/ShotGunKeystroke" rel="noopener">Source</a>
+        <a href="https://github.com/Piyushsomething/ShotGunKeystroke/issues" rel="noopener">Issues</a>
+        <a href="https://github.com/Piyushsomething/ShotGunKeystroke/blob/main/LICENSE" rel="noopener">License</a>
+      </p>
+    </div>
+  </footer>
+</body>
+</html>
